@@ -270,8 +270,17 @@ void WorkloadExecutionController::processEventCompoundJobCompletion(
     this->num_completed_jobs++;
 
     auto job_name = event->job->getName();
-    auto job_spec = this->workload_spec_submitted[job_name];
-    this->workload_spec_submitted.erase(job_name); // clean up memory
+    auto job_spec_it = this->workload_spec_submitted.find(job_name);
+    if (job_spec_it == this->workload_spec_submitted.end()) {
+        std::string message = "Completed job '" + job_name +
+                              "' is missing from workload_spec_submitted. Available keys:";
+        for (const auto &entry : this->workload_spec_submitted) {
+            message += " " + entry.first;
+        }
+        throw std::runtime_error(message);
+    }
+    auto job_spec = job_spec_it->second;
+    this->workload_spec_submitted.erase(job_spec_it); // clean up memory
 
     /* Retrieve the job that this event is for */
     WRENCH_INFO("Notified that job %s with %ld actions has completed", job_name.c_str(),

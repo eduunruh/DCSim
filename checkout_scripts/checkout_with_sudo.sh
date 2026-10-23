@@ -19,9 +19,9 @@ work_dir="$PWD"
 
 # Use nproc to determine the number of thread for build
 if command -v nproc &> /dev/null; then
-    num_procs=$(nproc)
+    num_procs=1
 else
-    num_procs=6
+    num_procs=1
 fi
 
 # Release tag for SimGrid and WRENCH. If not specified will directly clone the repository
@@ -56,7 +56,7 @@ fi
 pushd json-3.11.2
 mkdir -p build
 cd build
-cmake ..
+cmake .. -DJSON_BuildTests=OFF
 # cmake -DCMAKE_BUILD_TYPE=Debug ..
 make -j "$num_procs"; sudo make install
 popd

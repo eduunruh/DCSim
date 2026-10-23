@@ -1,0 +1,38 @@
+diff --git a/checkout_scripts/checkout_with_sudo.sh b/checkout_scripts/checkout_with_sudo.sh
+index 6a4bffd..77e8544 100755
+--- a/checkout_scripts/checkout_with_sudo.sh
++++ b/checkout_scripts/checkout_with_sudo.sh
+@@ -19,9 +19,9 @@ work_dir="$PWD"
+ 
+ # Use nproc to determine the number of thread for build
+ if command -v nproc &> /dev/null; then
+-    num_procs=$(nproc)
++    num_procs=1
+ else
+-    num_procs=6
++    num_procs=1
+ fi
+ 
+ # Release tag for SimGrid and WRENCH. If not specified will directly clone the repository
+@@ -56,7 +56,7 @@ fi
+ pushd json-3.11.2
+ mkdir -p build
+ cd build
+-cmake ..
++cmake .. -DJSON_BuildTests=OFF
+ # cmake -DCMAKE_BUILD_TYPE=Debug ..
+ make -j "$num_procs"; sudo make install
+ popd
+diff --git a/src/JobScheduler.cpp b/src/JobScheduler.cpp
+index c6b0388..b069b96 100644
+--- a/src/JobScheduler.cpp
++++ b/src/JobScheduler.cpp
+@@ -17,7 +17,7 @@ JobScheduler::JobScheduler(const std::vector<std::shared_ptr<wrench::ComputeServ
+             throw std::invalid_argument("JobScheduler::init(): Only 1-host compute services are supported!");
+         }
+         unsigned long num_cores = cs->getPerHostNumCores().begin()->second;
+-        sg_size_t ram = cs->getPerHostMemoryCapacity().begin()->second;
++        sg_size_t ram = cs->getMemoryCapacity().begin()->second;
+         this->total_num_idle_cores += num_cores;
+ 
+         this->available_resources[cs] = std::tuple(num_cores, ram);
